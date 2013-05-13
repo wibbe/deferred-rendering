@@ -30,6 +30,25 @@ define(function() {
           };
   }());
 
+  var compileShader = function(gl, source, type) {
+    var shaderHeader = "#ifdef GL_ES\n";
+    shaderHeader += "precision highp float;\n";
+    shaderHeader += "#endif\n";
+
+    var shader = gl.createShader(type);
+
+    gl.shaderSource(shader, shaderHeader + source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.debug(gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return null;
+    }
+
+    return shader;
+  };
+
   return {
     getContext: function(canvas) {
       var context;
@@ -64,6 +83,43 @@ define(function() {
       element.parentNode.replaceChild(errorElement, element);
     },
 
+    createShaderProgram: function(gl, vertexShader, fragmentShader, attribs, uniforms) {
+      var shaderProgram = gl.createProgram();
+
+      var vs = compileShader(gl, vertexShader, gl.VERTEX_SHADER);
+      var fs = compileShader(gl, fragmentShader, gl.FRAGMENT_SHADER);
+
+      gl.attachShader(shaderProgram, vs);
+      gl.attachShader(shaderProgram, fs);
+      gl.linkProgram(shaderProgram);
+
+      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        gl.deleteProgram(shaderProgram);
+        gl.deleteShader(vs);
+        gl.deleteShader(fs);
+        return null;
+      }
+  
+      // Query any shader attributes and uniforms that we specified needing
+      if (attribs) {
+        shaderProgram.attribute = { };
+        for (var i in attribs) {
+          var attrib = attribs[i];
+          shaderProgram.attribute[attrib] = gl.getAttribLocation(shaderProgram, attrib);
+        }
+      }
+
+      if (uniforms) {
+        shaderProgram.uniform = { };
+        for (var i in uniforms) {
+          var uniform = uniforms[i];
+          shaderProgram.uniform[uniform] = gl.getUniformLocation(shaderProgram, uniform);
+        }
+      }
+
+      return shaderProgram;
+    },
+
     loadTexture: function(gl, src, callback) {
       var texture = gl.createTexture();
       var image = new Image();
@@ -73,7 +129,7 @@ define(function() {
         gl.texImageParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texImageParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);  
         gl.generateMipmap(gl.TEXTURE_2D);
-        
+
         if (callback) { callback(texture); }
       });
       image.src = src;

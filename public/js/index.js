@@ -1,9 +1,10 @@
 
 require([
-  "util/domReady!",
-  "util/gl-util",
-  "util/stats"
-], function(doc, glUtil) {
+  'util/domReady!',
+  'util/gl-util',
+  'game',
+  'js/util/stats.js',
+], function(doc, glUtil, game) {
   "use strict";
   var canvas = document.getElementById("game-canvas");
   var frame = document.getElementById("game-frame");
@@ -27,9 +28,16 @@ require([
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
 
+  // Create renderer
+  var renderer = new game.Renderer(gl, canvas);
+  renderer.resize(gl, canvas);
+
+
   glUtil.start(function() {
     stats.begin();
-    // Drawing code goes here!
+
+    renderer.render(gl, canvas);
+
     stats.end();
   });
 });
