@@ -1,0 +1,25 @@
+
+body {
+    font: 0.8em Verdana,sans-serif;
+    color: white;
+    background-color: black;
+}
+
+#game-frame {
+    margin: auto;
+    margin-top: 3em;
+    width: 800px;
+}
+
+#gl-error {
+    margin-top: 3em;
+    text-align: center;
+}
+
+#game-canvas {
+    position: relative;
+    width: 800px;
+    height: 500px;
+    z-index: 1;
+    background-color: #333;
+}
