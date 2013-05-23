@@ -15,6 +15,10 @@ require([
     return;
   }
 
+  if (gl.getExtension("OES_texture_float") == null) {
+    throw "Missing float texture support!";
+  }
+
   // Create and add the stats object
   var stats = new Stats();
   stats.setMode(1);
@@ -29,14 +33,14 @@ require([
   canvas.height = canvas.offsetHeight;
 
   // Create renderer
-  var renderer = new game.Renderer(gl, canvas);
-  renderer.resize(gl, canvas);
+  var game = new game.Game(gl, canvas);
+  game.resize(gl, canvas);
 
 
   glUtil.start(function() {
     stats.begin();
 
-    renderer.render(gl, canvas);
+    game.render(gl, canvas);
 
     stats.end();
   });

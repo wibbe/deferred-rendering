@@ -10,20 +10,20 @@ define(function() {
       var vendors = ['ms', 'moz', 'webkit', 'o'];
       for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
           window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-          window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+          window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
                                      || window[vendors[x]+'CancelRequestAnimationFrame'];
       }
-   
+
       if (!window.requestAnimationFrame)
           window.requestAnimationFrame = function(callback, element) {
               var currTime = new Date().getTime();
               var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-              var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              var id = window.setTimeout(function() { callback(currTime + timeToCall); },
                 timeToCall);
               lastTime = currTime + timeToCall;
               return id;
           };
-   
+
       if (!window.cancelAnimationFrame)
           window.cancelAnimationFrame = function(id) {
               clearTimeout(id);
@@ -99,7 +99,7 @@ define(function() {
         gl.deleteShader(fs);
         return null;
       }
-  
+
       // Query any shader attributes and uniforms that we specified needing
       if (attribs) {
         shaderProgram.attribute = { };
@@ -127,7 +127,7 @@ define(function() {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
         gl.texImageParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texImageParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);  
+        gl.texImageParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
 
         if (callback) { callback(texture); }
@@ -143,6 +143,20 @@ define(function() {
       }
 
       window.requestAnimationFrame(processFrame);
+    },
+
+    checkFramebuffer: function(gl, framebuffer) {
+      var valid = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+      switch(valid) {
+        case gl.FRAMEBUFFER_UNSUPPORTED:
+          throw 'Framebuffer is unsupported';
+        case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+          throw 'Framebuffer incomplete attachment';
+        case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+          throw 'Framebuffer incomplete dimensions';
+        case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+          throw 'Framebuffer incomplete missing attachment';
+      }
     }
   };
 });
